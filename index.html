@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LSPD Dashboard</title>
+<meta name="description" content="Internes Dienstdashboard des Los Santos Police Department">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4 L58 20 L76 15 L74 34 L92 39 L79 53 L90 68 L71 68 L69 87 L52 78 L38 91 L33 73 L15 76 L20 58 L4 48 L20 38 L14 20 L32 24 Z' fill='%230a1420' stroke='%23c9a227' stroke-width='4'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -42,16 +44,7 @@
   a{color:inherit;}
 
   /* ---------- Login screen ---------- */
-  #login-screen{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-    gap:26px;
-    padding:24px;
-    text-align:center;
-  }
+  #login-screen{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:26px;padding:24px;text-align:center;}
   .badge{width:104px;height:104px;}
   .dept-title{font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:0.22em;margin:0;}
   .dept-sub{font-size:clamp(26px,7vw,36px);font-weight:600;margin:6px 0 0 0;color:var(--paper);}
@@ -63,7 +56,29 @@
   #discord-login:hover{background:#4752c4;}
   #login-note{font-size:12px;color:var(--paper-dim);max-width:320px;}
 
-  /* ---------- Denied screen ---------- */
+  /* ---------- Loading screen ---------- */
+  #loading-screen{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;
+  }
+  #loading-screen .spin{
+    width:34px;height:34px;border:2px solid var(--line);border-top-color:var(--gold);border-radius:50%;
+    animation:spin 0.8s linear infinite;
+  }
+  #loading-screen p{color:var(--paper-dim);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ---------- Toast ---------- */
+  #toast-wrap{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px;}
+  .toast{
+    background:var(--navy-900);border:1px solid var(--line);border-left:3px solid var(--green);color:var(--paper);
+    padding:11px 16px;font-size:12px;font-family:'IBM Plex Mono';box-shadow:0 4px 14px rgba(0,0,0,0.4);
+    animation:toast-in 0.25s ease, toast-out 0.3s ease 2.7s forwards;
+    max-width:280px;
+  }
+  .toast.err{border-left-color:var(--red);}
+  @keyframes toast-in{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+  @keyframes toast-out{to{opacity:0;transform:translateX(20px);}}
+  @media (max-width:720px){ #toast-wrap{left:14px;right:14px;bottom:14px;} .toast{max-width:none;} }
   #denied-screen{
     display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;
     gap:16px;padding:24px;text-align:center;
@@ -185,6 +200,12 @@
 </head>
 <body>
 
+<!-- ================= LOADING SCREEN ================= -->
+<div id="loading-screen">
+  <div class="spin"></div>
+  <p>Wird geladen...</p>
+</div>
+
 <!-- ================= LOGIN SCREEN ================= -->
 <div id="login-screen">
   <svg class="badge" viewBox="0 0 100 100">
@@ -243,6 +264,7 @@
           <div class="stat" style="--accent:var(--blue)"><div class="stat-num">0</div><div class="stat-label">Beamte</div></div>
           <div class="stat" style="--accent:var(--green)"><div class="stat-num" id="stat-onduty">0</div><div class="stat-label">Im Dienst heute</div></div>
           <div class="stat" style="--accent:var(--red)"><div class="stat-num" id="stat-citations">0</div><div class="stat-label">Strafzettel gesamt</div></div>
+          <div class="stat" style="--accent:var(--gold)"><div class="stat-num" id="stat-revenue">$0</div><div class="stat-label">Bußgelder gesamt</div></div>
         </div>
 
         <div class="panel" id="discord-online-panel" style="display:none;">
@@ -325,6 +347,8 @@
   </div>
 </div>
 
+<div id="toast-wrap"></div>
+
 <script>
 /* ======================================================================
    KONFIGURATION
@@ -352,14 +376,24 @@ if (configOk) {
     `<div class="setup-banner"><strong>Setup nötig:</strong> Trage SUPABASE_URL und SUPABASE_ANON_KEY ein.</div>`);
 }
 
+const loadingScreen = document.getElementById("loading-screen");
 const loginScreen = document.getElementById("login-screen");
 const deniedScreen = document.getElementById("denied-screen");
 const app = document.getElementById("app");
 
+function showToast(msg, isError) {
+  const t = document.createElement("div");
+  t.className = "toast" + (isError ? " err" : "");
+  t.textContent = msg;
+  document.getElementById("toast-wrap").appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
 async function init() {
-  if (!configOk) return;
+  if (!configOk) { loadingScreen.style.display = "none"; showLogin(); return; }
   const { data: { session } } = await sb.auth.getSession();
-  if (session) await handleSession(session);
+  loadingScreen.style.display = "none";
+  if (session) await handleSession(session); else showLogin();
 
   sb.auth.onAuthStateChange(async (event, session) => {
     if (session) await handleSession(session); else showLogin();
@@ -395,8 +429,11 @@ function showApp(session) {
   deniedScreen.style.display = "none";
   app.style.display = "block";
   const u = session.user.user_metadata || {};
-  document.getElementById("user-name").textContent = u.full_name || u.name || session.user.email || "Beamter";
+  const displayName = u.full_name || u.name || session.user.email || "Beamter";
+  document.getElementById("user-name").textContent = displayName;
   document.getElementById("user-avatar").src = u.avatar_url || "";
+  const czOfficer = document.getElementById("cz-officer");
+  if (czOfficer && !czOfficer.value) czOfficer.value = displayName;
   loadAll();
 }
 
@@ -458,6 +495,8 @@ async function loadStrafzettel() {
   const { data } = await sb.from("citations").select("*").order("created_at", { ascending: false });
   cache.citations = data || [];
   document.getElementById("stat-citations").textContent = cache.citations.length;
+  const total = cache.citations.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
+  document.getElementById("stat-revenue").textContent = "$" + total.toLocaleString("de-DE");
   renderStrafzettel(cache.citations);
   renderChart(cache.citations);
   const recent = document.getElementById("recent-citations");
@@ -506,7 +545,10 @@ function filterTable(name) {
 }
 
 async function deleteRow(table, id, reload) {
-  await sb.from(table).delete().eq("id", id);
+  if (!confirm("Diesen Eintrag wirklich entfernen?")) return;
+  const { error } = await sb.from(table).delete().eq("id", id);
+  if (error) { showToast("Fehler beim Entfernen", true); return; }
+  showToast("Eintrag entfernt");
   reload();
 }
 
@@ -529,46 +571,65 @@ async function loadDiscordOnline() {
 /* ---------- Formulare ---------- */
 document.getElementById("add-officer").addEventListener("click", async () => {
   const name = document.getElementById("of-name").value.trim();
-  if (!name) return;
-  await sb.from("officers").insert({
+  if (!name) { showToast("Bitte einen Namen eingeben", true); return; }
+  const { error } = await sb.from("officers").insert({
     name,
     badge_number: document.getElementById("of-badge").value.trim(),
     rank: document.getElementById("of-rank").value.trim(),
     status: document.getElementById("of-status").value
   });
+  if (error) { showToast("Fehler beim Hinzufügen", true); return; }
   document.getElementById("of-name").value = "";
   document.getElementById("of-badge").value = "";
   document.getElementById("of-rank").value = "";
+  showToast("Beamter hinzugefügt");
   loadOfficers();
 });
 
 document.getElementById("add-shift").addEventListener("click", async () => {
   const name = document.getElementById("dp-name").value.trim();
   const date = document.getElementById("dp-date").value;
-  if (!name || !date) return;
-  await sb.from("dienstplan").insert({
+  if (!name || !date) { showToast("Name und Datum sind Pflicht", true); return; }
+  const { error } = await sb.from("dienstplan").insert({
     officer_name: name, shift_date: date,
     start_time: document.getElementById("dp-start").value,
     end_time: document.getElementById("dp-end").value
   });
+  if (error) { showToast("Fehler beim Eintragen", true); return; }
   document.getElementById("dp-name").value = "";
+  showToast("Schicht eingetragen");
   loadDienstplan();
 });
 
 document.getElementById("add-citation").addEventListener("click", async () => {
   const suspect = document.getElementById("cz-name").value.trim();
   const reason = document.getElementById("cz-grund").value.trim();
-  if (!suspect || !reason) return;
-  await sb.from("citations").insert({
+  if (!suspect || !reason) { showToast("Name und Grund sind Pflicht", true); return; }
+  const { error } = await sb.from("citations").insert({
     suspect_name: suspect, reason,
     amount: Number(document.getElementById("cz-betrag").value) || 0,
     officer_name: document.getElementById("cz-officer").value.trim() || "Unbekannt"
   });
+  if (error) { showToast("Fehler beim Ausstellen", true); return; }
   document.getElementById("cz-name").value = "";
   document.getElementById("cz-grund").value = "";
   document.getElementById("cz-betrag").value = "";
-  document.getElementById("cz-officer").value = "";
+  showToast("Strafzettel ausgestellt");
   loadStrafzettel();
+});
+
+/* ---------- Enter-Taste in Formularen ---------- */
+[
+  ["of-name", "of-badge", "of-rank"],
+  ["dp-name", "dp-date", "dp-start", "dp-end"],
+  ["cz-name", "cz-grund", "cz-betrag", "cz-officer"]
+].forEach(ids => {
+  const btnId = { "of-name": "add-officer", "dp-name": "add-shift", "cz-name": "add-citation" }[ids[0]];
+  ids.forEach(id => {
+    document.getElementById(id)?.addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById(btnId).click();
+    });
+  });
 });
 
 init();
