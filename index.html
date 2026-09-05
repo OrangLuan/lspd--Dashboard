@@ -9,25 +9,28 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --navy-950:#0a1628;
-    --navy-900:#0f1f38;
+    --navy-950:#0a1420;
+    --navy-900:#0f1c30;
     --navy-800:#16294a;
-    --steel:#3e5c76;
+    --steel:#4a6d8c;
     --gold:#c9a227;
     --gold-dim:#8f7419;
     --paper:#e9e4d8;
-    --paper-dim:#b8b2a2;
-    --red:#a33b2e;
-    --green:#4d7a53;
-    --line: rgba(233,228,216,0.14);
+    --paper-dim:#9aa3ad;
+    --red:#b5443a;
+    --red-dim:#7a2f28;
+    --blue:#3f7cac;
+    --blue-dim:#2b5678;
+    --green:#5a9463;
+    --line: rgba(233,228,216,0.13);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
     background:var(--navy-950);
     background-image:
-      radial-gradient(circle at 20% 0%, rgba(62,92,118,0.18), transparent 45%),
-      radial-gradient(circle at 100% 100%, rgba(201,162,39,0.06), transparent 40%);
+      radial-gradient(circle at 15% 0%, rgba(74,109,140,0.16), transparent 45%),
+      radial-gradient(circle at 100% 100%, rgba(201,162,39,0.05), transparent 40%);
     color:var(--paper);
     font-family:'IBM Plex Mono', monospace;
     min-height:100vh;
@@ -45,184 +48,134 @@
     align-items:center;
     justify-content:center;
     flex-direction:column;
-    gap:28px;
+    gap:26px;
     padding:24px;
     text-align:center;
   }
-  .badge{
-    width:96px;height:96px;
-  }
-  .dept-title{
-    font-size:13px;
-    color:var(--gold);
-    text-transform:uppercase;
-    letter-spacing:0.22em;
-    margin:0;
-  }
-  .dept-sub{
-    font-size:34px;
-    font-weight:600;
-    margin:6px 0 0 0;
-    color:var(--paper);
-  }
-  .dept-tag{
-    color:var(--paper-dim);
-    font-size:13px;
-    margin-top:6px;
-  }
+  .badge{width:104px;height:104px;}
+  .dept-title{font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:0.22em;margin:0;}
+  .dept-sub{font-size:clamp(26px,7vw,36px);font-weight:600;margin:6px 0 0 0;color:var(--paper);}
+  .dept-tag{color:var(--paper-dim);font-size:13px;margin-top:6px;}
   #discord-login{
-    margin-top:18px;
-    background:#5865F2;
-    color:#fff;
-    border:none;
-    padding:13px 26px;
-    font-size:15px;
-    font-weight:600;
-    border-radius:3px;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    gap:10px;
+    margin-top:14px;background:#5865F2;color:#fff;border:none;padding:13px 26px;
+    font-size:15px;font-weight:600;border-radius:3px;cursor:pointer;display:flex;align-items:center;gap:10px;
   }
   #discord-login:hover{background:#4752c4;}
-  #login-note{
-    font-size:12px;
-    color:var(--paper-dim);
-    max-width:320px;
+  #login-note{font-size:12px;color:var(--paper-dim);max-width:320px;}
+
+  /* ---------- Denied screen ---------- */
+  #denied-screen{
+    display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;
+    gap:16px;padding:24px;text-align:center;
   }
+  #denied-screen .x{width:56px;height:56px;color:var(--red);}
+  #denied-screen h2{margin:0;font-size:20px;}
+  #denied-screen p{color:var(--paper-dim);font-size:13px;max-width:340px;}
 
   /* ---------- App shell ---------- */
   #app{display:none;min-height:100vh;}
   .topbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:14px 26px;
-    border-bottom:1px solid var(--line);
-    background:var(--navy-900);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 22px;border-bottom:1px solid var(--line);background:var(--navy-900);
   }
-  .topbar .brand{
-    display:flex;align-items:center;gap:12px;
-  }
-  .topbar .brand svg{width:30px;height:30px;}
-  .topbar .brand-text{font-size:16px;font-weight:600;letter-spacing:0.04em;}
-  .topbar .brand-text small{display:block;font-family:'IBM Plex Mono';font-weight:400;font-size:10px;color:var(--paper-dim);letter-spacing:0.1em;}
-  .who{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--paper-dim);}
-  .who img{width:30px;height:30px;border-radius:2px;border:1px solid var(--line);}
-  #logout{
-    background:none;border:1px solid var(--line);color:var(--paper-dim);
-    font-family:'IBM Plex Mono';font-size:11px;padding:6px 10px;cursor:pointer;border-radius:2px;
-  }
+  .topbar .brand{display:flex;align-items:center;gap:12px;}
+  .topbar .brand svg{width:30px;height:30px;flex-shrink:0;}
+  .topbar .brand-text{font-size:15px;font-weight:600;letter-spacing:0.03em;white-space:nowrap;}
+  .topbar .brand-text small{display:block;font-family:'IBM Plex Mono';font-weight:400;font-size:10px;color:var(--paper-dim);letter-spacing:0.08em;}
+  .who{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--paper-dim);}
+  .who span{display:none;}
+  .who img{width:28px;height:28px;border-radius:2px;border:1px solid var(--line);}
+  #logout{background:none;border:1px solid var(--line);color:var(--paper-dim);font-family:'IBM Plex Mono';font-size:11px;padding:6px 10px;cursor:pointer;border-radius:2px;}
   #logout:hover{border-color:var(--gold);color:var(--gold);}
 
   .shell{display:flex;}
   .sidebar{
-    width:190px;
-    border-right:1px solid var(--line);
-    background:var(--navy-900);
-    min-height:calc(100vh - 61px);
-    padding:18px 0;
-    flex-shrink:0;
+    width:184px;border-right:1px solid var(--line);background:var(--navy-900);
+    min-height:calc(100vh - 60px);padding:16px 0;flex-shrink:0;
   }
   .nav-item{
-    display:block;
-    width:100%;
-    text-align:left;
-    background:none;
-    border:none;
-    color:var(--paper-dim);
-    font-size:13px;
-    letter-spacing:0.04em;
-    padding:11px 22px;
-    cursor:pointer;
-    border-left:2px solid transparent;
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;
+    color:var(--paper-dim);font-size:13px;letter-spacing:0.03em;padding:11px 20px;cursor:pointer;border-left:2px solid transparent;
   }
-  .nav-item .n{font-family:'IBM Plex Mono';font-size:10px;color:var(--gold-dim);margin-right:8px;}
+  .nav-item .dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:0.5;flex-shrink:0;}
   .nav-item:hover{color:var(--paper);}
-  .nav-item.active{color:var(--paper);border-left-color:var(--gold);background:rgba(201,162,39,0.05);}
+  .nav-item.active{color:var(--paper);border-left-color:var(--accent,var(--gold));background:rgba(233,228,216,0.03);}
+  .nav-item.active .dot{opacity:1;background:var(--accent,var(--gold));}
+  .nav-item[data-view="roster"].active{--accent:var(--blue);}
+  .nav-item[data-view="dienstplan"].active{--accent:var(--gold);}
+  .nav-item[data-view="strafzettel"].active{--accent:var(--red);}
 
-  main{flex:1;padding:30px 34px;max-width:980px;}
+  main{flex:1;padding:26px 30px 60px;max-width:1000px;min-width:0;}
   .view{display:none;}
   .view.active{display:block;}
-  .view-head{margin-bottom:22px;border-bottom:1px solid var(--line);padding-bottom:14px;}
-  .view-head h2{margin:0;font-size:22px;font-weight:600;color:var(--paper);}
+  .view-head{margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:13px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .view-head h2{margin:0;font-size:21px;font-weight:600;color:var(--paper);}
   .view-head p{margin:4px 0 0 0;font-size:12px;color:var(--paper-dim);}
-
-  .stat-row{display:flex;gap:14px;margin-bottom:24px;flex-wrap:wrap;}
-  .stat{
-    border:1px solid var(--line);
-    background:var(--navy-900);
-    padding:14px 18px;
-    min-width:130px;
-    border-left:2px solid var(--gold-dim);
+  .search-box{
+    background:var(--navy-900);border:1px solid var(--line);color:var(--paper);
+    padding:8px 11px;font-family:'IBM Plex Mono';font-size:12px;min-width:180px;
   }
-  .stat-num{font-size:24px;font-weight:600;color:var(--gold);font-family:'Oswald';}
-  .stat-label{font-size:10px;color:var(--paper-dim);text-transform:uppercase;letter-spacing:0.1em;margin-top:2px;}
+  .search-box:focus{outline:none;border-color:var(--steel);}
+
+  .stat-row{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap;}
+  .stat{border:1px solid var(--line);background:var(--navy-900);padding:13px 17px;min-width:120px;border-left:3px solid var(--accent,var(--gold-dim));}
+  .stat-num{font-size:23px;font-weight:600;color:var(--accent,var(--gold));font-family:'Oswald';}
+  .stat-label{font-size:10px;color:var(--paper-dim);text-transform:uppercase;letter-spacing:0.09em;margin-top:2px;}
 
   table{width:100%;border-collapse:collapse;font-size:13px;}
-  th{
-    text-align:left;
-    font-family:'Oswald';
-    font-weight:500;
-    font-size:11px;
-    letter-spacing:0.06em;
-    text-transform:uppercase;
-    color:var(--paper-dim);
-    padding:9px 12px;
-    border-bottom:1px solid var(--line);
-  }
-  td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--paper);}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  th{text-align:left;font-family:'Oswald';font-weight:500;font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--paper-dim);padding:9px 11px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  td{padding:10px 11px;border-bottom:1px solid var(--line);color:var(--paper);}
   tr:hover td{background:rgba(233,228,216,0.02);}
-  .empty-row td{color:var(--paper-dim);font-style:normal;text-align:center;padding:22px;}
+  .empty-row td{color:var(--paper-dim);text-align:center;padding:20px;}
 
-  .badge-pill{
-    display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;letter-spacing:0.05em;
-    border:1px solid var(--line);
-  }
+  .badge-pill{display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;letter-spacing:0.04em;border:1px solid var(--line);white-space:nowrap;}
   .status-on{color:var(--green);border-color:var(--green);}
   .status-off{color:var(--paper-dim);}
 
-  .panel{border:1px solid var(--line);background:var(--navy-900);padding:18px 20px;margin-bottom:22px;}
-  .panel h3{margin:0 0 14px 0;font-size:14px;color:var(--paper);font-weight:600;}
-  .form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
-  .form-row input, .form-row select{
-    flex:1;min-width:140px;
-    background:var(--navy-950);
-    border:1px solid var(--line);
-    color:var(--paper);
-    padding:9px 10px;
-    font-family:'IBM Plex Mono';
-    font-size:13px;
-  }
-  .form-row input:focus, .form-row select:focus{outline:none;border-color:var(--gold-dim);}
-  .btn-primary{
-    background:var(--gold-dim);
-    color:var(--navy-950);
-    border:none;
-    padding:10px 18px;
-    font-family:'Oswald';
-    font-weight:600;
-    font-size:12px;
-    letter-spacing:0.04em;
-    cursor:pointer;
-  }
-  .btn-primary:hover{background:var(--gold);}
-  .btn-danger{
-    background:none;border:1px solid var(--red);color:var(--red);
-    padding:4px 9px;font-size:10px;cursor:pointer;font-family:'IBM Plex Mono';
-  }
+  .panel{border:1px solid var(--line);background:var(--navy-900);padding:17px 19px;margin-bottom:20px;}
+  .panel h3{margin:0 0 13px 0;font-size:14px;color:var(--paper);font-weight:600;}
+  .form-row{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:12px;}
+  .form-row input,.form-row select{flex:1;min-width:130px;background:var(--navy-950);border:1px solid var(--line);color:var(--paper);padding:9px 10px;font-family:'IBM Plex Mono';font-size:13px;}
+  .form-row input:focus,.form-row select:focus{outline:none;border-color:var(--gold-dim);}
+
+  .btn-primary{background:var(--accent-dim,var(--gold-dim));color:var(--navy-950);border:none;padding:10px 18px;font-family:'Oswald';font-weight:600;font-size:12px;letter-spacing:0.03em;cursor:pointer;}
+  .btn-primary:hover{background:var(--accent,var(--gold));}
+  #view-roster .btn-primary{--accent:var(--blue);--accent-dim:var(--blue-dim);}
+  #view-strafzettel .btn-primary{--accent:var(--red);--accent-dim:var(--red-dim);}
+  .btn-danger{background:none;border:1px solid var(--red);color:var(--red);padding:4px 9px;font-size:10px;cursor:pointer;font-family:'IBM Plex Mono';}
   .btn-danger:hover{background:var(--red);color:var(--paper);}
 
-  .setup-banner{
-    border:1px solid var(--red);
-    color:var(--paper);
-    background:rgba(163,59,46,0.12);
-    padding:16px 20px;
-    font-size:13px;
-    margin:20px;
-    line-height:1.6;
-  }
+  .setup-banner{border:1px solid var(--red);color:var(--paper);background:rgba(181,68,58,0.12);padding:16px 20px;font-size:13px;margin:20px;line-height:1.6;}
   .setup-banner code{background:rgba(0,0,0,0.3);padding:1px 5px;border-radius:2px;}
+
+  /* ---------- Chart ---------- */
+  .chart{display:flex;align-items:flex-end;gap:8px;height:140px;margin-top:6px;padding:0 4px;}
+  .chart-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;}
+  .chart-bar .bar{width:100%;background:linear-gradient(to top,var(--red-dim),var(--red));border-radius:2px 2px 0 0;min-height:2px;}
+  .chart-bar .lbl{font-size:9px;color:var(--paper-dim);white-space:nowrap;}
+  .chart-bar .val{font-size:10px;color:var(--paper);}
+
+  /* ---------- Discord widget ---------- */
+  .online-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .online-chip{display:flex;align-items:center;gap:6px;background:var(--navy-950);border:1px solid var(--line);padding:5px 9px 5px 5px;border-radius:20px;font-size:12px;}
+  .online-chip img{width:20px;height:20px;border-radius:50%;}
+  .online-chip .dot{width:7px;height:7px;border-radius:50%;background:var(--green);margin-left:2px;}
+
+  /* ---------- Mobile ---------- */
+  @media (max-width: 720px){
+    .who span{display:inline;}
+    .shell{flex-direction:column;}
+    .sidebar{
+      width:100%;min-height:auto;border-right:none;border-bottom:1px solid var(--line);
+      display:flex;overflow-x:auto;padding:6px 8px;gap:2px;
+    }
+    .nav-item{border-left:none;border-bottom:2px solid transparent;padding:9px 12px;white-space:nowrap;flex-shrink:0;}
+    .nav-item.active{border-bottom-color:var(--accent,var(--gold));background:none;}
+    main{padding:20px 14px 40px;}
+    .form-row input,.form-row select{min-width:100%;}
+    .topbar .brand-text small{display:none;}
+  }
 </style>
 </head>
 <body>
@@ -230,9 +183,10 @@
 <!-- ================= LOGIN SCREEN ================= -->
 <div id="login-screen">
   <svg class="badge" viewBox="0 0 100 100">
-    <polygon points="50,3 61,32 92,32 67,51 76,82 50,63 24,82 33,51 8,32 39,32"
-      fill="none" stroke="#c9a227" stroke-width="2.5"/>
-    <circle cx="50" cy="50" r="16" fill="none" stroke="#c9a227" stroke-width="2"/>
+    <path d="M50 4 L58 20 L76 15 L74 34 L92 39 L79 53 L90 68 L71 68 L69 87 L52 78 L38 91 L33 73 L15 76 L20 58 L4 48 L20 38 L14 20 L32 24 Z"
+      fill="none" stroke="#c9a227" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="50" cy="50" r="21" fill="none" stroke="#c9a227" stroke-width="2"/>
+    <path d="M50 38 L54 47 L64 48 L56 55 L59 65 L50 59 L41 65 L44 55 L36 48 L46 47 Z" fill="#c9a227"/>
   </svg>
   <div>
     <p class="dept-title">Los Santos Police Department</p>
@@ -246,11 +200,19 @@
   <p id="login-note">Deine Anmeldung erfolgt über den LSPD-Discord-Server. Nur Mitglieder mit gültiger Rolle erhalten Zugriff.</p>
 </div>
 
+<!-- ================= DENIED SCREEN ================= -->
+<div id="denied-screen">
+  <svg class="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+  <h2>Zugriff verweigert</h2>
+  <p>Dein Discord-Account ist nicht für dieses Dashboard freigeschaltet. Wende dich an die Departmentleitung, wenn du Zugriff benötigst.</p>
+  <button id="denied-logout" class="btn-primary" style="margin-top:8px;">Abmelden</button>
+</div>
+
 <!-- ================= APP ================= -->
 <div id="app">
   <div class="topbar">
     <div class="brand">
-      <svg viewBox="0 0 100 100"><polygon points="50,3 61,32 92,32 67,51 76,82 50,63 24,82 33,51 8,32 39,32" fill="none" stroke="#c9a227" stroke-width="4"/></svg>
+      <svg viewBox="0 0 100 100"><path d="M50 4 L58 20 L76 15 L74 34 L92 39 L79 53 L90 68 L71 68 L69 87 L52 78 L38 91 L33 73 L15 76 L20 58 L4 48 L20 38 L14 20 L32 24 Z" fill="none" stroke="#c9a227" stroke-width="4" stroke-linejoin="round"/></svg>
       <div class="brand-text">LSPD Dashboard<small>Los Santos Police Department</small></div>
     </div>
     <div class="who">
@@ -262,31 +224,45 @@
 
   <div class="shell">
     <div class="sidebar">
-      <button class="nav-item active" data-view="uebersicht"><span class="n">01</span>Übersicht</button>
-      <button class="nav-item" data-view="roster"><span class="n">02</span>Roster</button>
-      <button class="nav-item" data-view="dienstplan"><span class="n">03</span>Dienstplan</button>
-      <button class="nav-item" data-view="strafzettel"><span class="n">04</span>Strafzettel</button>
+      <button class="nav-item active" data-view="uebersicht"><span class="dot"></span>Übersicht</button>
+      <button class="nav-item" data-view="roster"><span class="dot"></span>Roster</button>
+      <button class="nav-item" data-view="dienstplan"><span class="dot"></span>Dienstplan</button>
+      <button class="nav-item" data-view="strafzettel"><span class="dot"></span>Strafzettel</button>
     </div>
 
     <main>
       <!-- ---- Übersicht ---- -->
       <section class="view active" id="view-uebersicht">
-        <div class="view-head"><h2>Übersicht</h2><p>Aktueller Stand des Departments</p></div>
+        <div class="view-head"><div><h2>Übersicht</h2><p>Aktueller Stand des Departments</p></div></div>
         <div class="stat-row">
-          <div class="stat"><div class="stat-num" id="stat-officers">0</div><div class="stat-label">Beamte</div></div>
-          <div class="stat"><div class="stat-num" id="stat-onduty">0</div><div class="stat-label">Im Dienst heute</div></div>
-          <div class="stat"><div class="stat-num" id="stat-citations">0</div><div class="stat-label">Strafzettel gesamt</div></div>
+          <div class="stat" style="--accent:var(--blue)"><div class="stat-num">0</div><div class="stat-label">Beamte</div></div>
+          <div class="stat" style="--accent:var(--green)"><div class="stat-num" id="stat-onduty">0</div><div class="stat-label">Im Dienst heute</div></div>
+          <div class="stat" style="--accent:var(--red)"><div class="stat-num" id="stat-citations">0</div><div class="stat-label">Strafzettel gesamt</div></div>
         </div>
+
+        <div class="panel" id="discord-online-panel" style="display:none;">
+          <h3>Gerade online im Discord</h3>
+          <div class="online-list" id="online-list"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Strafzettel pro Monat</h3>
+          <div class="chart" id="citations-chart"></div>
+        </div>
+
         <div class="panel">
           <h3>Letzte Strafzettel</h3>
-          <table><thead><tr><th>Datum</th><th>Beschuldigter</th><th>Grund</th><th>Betrag</th></tr></thead>
-          <tbody id="recent-citations"><tr class="empty-row"><td colspan="4">Noch keine Einträge</td></tr></tbody></table>
+          <div class="table-wrap"><table><thead><tr><th>Datum</th><th>Beschuldigter</th><th>Grund</th><th>Betrag</th></tr></thead>
+          <tbody id="recent-citations"><tr class="empty-row"><td colspan="4">Noch keine Einträge</td></tr></tbody></table></div>
         </div>
       </section>
 
       <!-- ---- Roster ---- -->
       <section class="view" id="view-roster">
-        <div class="view-head"><h2>Roster</h2><p>Alle registrierten Beamten des Departments</p></div>
+        <div class="view-head">
+          <div><h2>Roster</h2><p>Alle registrierten Beamten des Departments</p></div>
+          <input class="search-box" id="roster-search" placeholder="Suchen...">
+        </div>
         <div class="panel">
           <h3>Beamten hinzufügen</h3>
           <div class="form-row">
@@ -297,13 +273,16 @@
           </div>
           <button class="btn-primary" id="add-officer">Hinzufügen</button>
         </div>
-        <table><thead><tr><th>Dienstnr.</th><th>Name</th><th>Rang</th><th>Status</th><th></th></tr></thead>
-        <tbody id="roster-body"><tr class="empty-row"><td colspan="5">Noch keine Beamten eingetragen</td></tr></tbody></table>
+        <div class="table-wrap"><table><thead><tr><th>Dienstnr.</th><th>Name</th><th>Rang</th><th>Status</th><th></th></tr></thead>
+        <tbody id="roster-body"><tr class="empty-row"><td colspan="5">Noch keine Beamten eingetragen</td></tr></tbody></table></div>
       </section>
 
       <!-- ---- Dienstplan ---- -->
       <section class="view" id="view-dienstplan">
-        <div class="view-head"><h2>Dienstplan</h2><p>Schichten der kommenden Tage</p></div>
+        <div class="view-head">
+          <div><h2>Dienstplan</h2><p>Schichten der kommenden Tage</p></div>
+          <input class="search-box" id="dienstplan-search" placeholder="Suchen...">
+        </div>
         <div class="panel">
           <h3>Schicht eintragen</h3>
           <div class="form-row">
@@ -314,13 +293,16 @@
           </div>
           <button class="btn-primary" id="add-shift">Eintragen</button>
         </div>
-        <table><thead><tr><th>Datum</th><th>Beamter</th><th>Von</th><th>Bis</th><th></th></tr></thead>
-        <tbody id="dienstplan-body"><tr class="empty-row"><td colspan="5">Noch keine Schichten eingetragen</td></tr></tbody></table>
+        <div class="table-wrap"><table><thead><tr><th>Datum</th><th>Beamter</th><th>Von</th><th>Bis</th><th></th></tr></thead>
+        <tbody id="dienstplan-body"><tr class="empty-row"><td colspan="5">Noch keine Schichten eingetragen</td></tr></tbody></table></div>
       </section>
 
       <!-- ---- Strafzettel ---- -->
       <section class="view" id="view-strafzettel">
-        <div class="view-head"><h2>Strafzettel</h2><p>Ausgestellte Verwarnungen und Bußgelder</p></div>
+        <div class="view-head">
+          <div><h2>Strafzettel</h2><p>Ausgestellte Verwarnungen und Bußgelder</p></div>
+          <input class="search-box" id="strafzettel-search" placeholder="Suchen...">
+        </div>
         <div class="panel">
           <h3>Neuen Strafzettel ausstellen</h3>
           <div class="form-row">
@@ -331,8 +313,8 @@
           </div>
           <button class="btn-primary" id="add-citation">Ausstellen</button>
         </div>
-        <table><thead><tr><th>Datum</th><th>Name</th><th>Grund</th><th>Betrag</th><th>Beamter</th><th></th></tr></thead>
-        <tbody id="strafzettel-body"><tr class="empty-row"><td colspan="6">Noch keine Strafzettel ausgestellt</td></tr></tbody></table>
+        <div class="table-wrap"><table><thead><tr><th>Datum</th><th>Name</th><th>Grund</th><th>Betrag</th><th>Beamter</th><th></th></tr></thead>
+        <tbody id="strafzettel-body"><tr class="empty-row"><td colspan="6">Noch keine Strafzettel ausgestellt</td></tr></tbody></table></div>
       </section>
     </main>
   </div>
@@ -340,11 +322,20 @@
 
 <script>
 /* ======================================================================
-   SUPABASE KONFIGURATION
-   Trage hier deine eigenen Werte ein (Supabase Projekt -> Settings -> API)
+   KONFIGURATION
    ====================================================================== */
 const SUPABASE_URL = "https://usuwmstsgqtyuuepvesl.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVzdXdtc3RzZ3F0eXV1ZXB2ZXNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjMwMzIsImV4cCI6MjEwNDAzOTAzMn0.PTAukT0EpDEf6hsU477BBhDnJljt_4-uqAj_FnvNmC0";
+const SITE_URL = "https://orangluan.github.io/lspd--Dashboard/";
+
+/* Optional: Discord Server-ID eintragen, um "Gerade online" anzuzeigen.
+   Dafür muss im Discord-Server unter Server-Einstellungen -> Widget
+   "Server-Widget aktivieren" angeschaltet sein. Leer lassen = Funktion aus. */
+const DISCORD_GUILD_ID = "";
+
+/* Zugriffsbeschränkung: Wenn true, dürfen nur Discord-IDs aus der Tabelle
+   "authorized_officers" (Supabase) das Dashboard benutzen. Siehe SQL-Anleitung im Chat. */
+const RESTRICT_ACCESS = false;
 
 let sb = null;
 let configOk = SUPABASE_URL.startsWith("http") && SUPABASE_ANON_KEY.length > 20;
@@ -353,44 +344,50 @@ if (configOk) {
   sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 } else {
   document.body.insertAdjacentHTML("afterbegin",
-    `<div class="setup-banner">
-      <strong>Setup nötig:</strong> Trage in der HTML-Datei ganz unten im &lt;script&gt;-Bereich
-      deine <code>SUPABASE_URL</code> und <code>SUPABASE_ANON_KEY</code> ein, damit Login und Datenbank funktionieren.
-      Die Anleitung dazu hast du im Chat erhalten.
-    </div>`);
+    `<div class="setup-banner"><strong>Setup nötig:</strong> Trage SUPABASE_URL und SUPABASE_ANON_KEY ein.</div>`);
 }
 
 const loginScreen = document.getElementById("login-screen");
+const deniedScreen = document.getElementById("denied-screen");
 const app = document.getElementById("app");
 
 async function init() {
   if (!configOk) return;
-
   const { data: { session } } = await sb.auth.getSession();
-  if (session) showApp(session);
+  if (session) await handleSession(session);
 
-  sb.auth.onAuthStateChange((event, session) => {
-    if (session) showApp(session); else showLogin();
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (session) await handleSession(session); else showLogin();
   });
 
   document.getElementById("discord-login").addEventListener("click", async () => {
-    await sb.auth.signInWithOAuth({
-      provider: "discord",
-      options: { redirectTo: "https://orangluan.github.io/lspd--Dashboard/" }
-    });
+    await sb.auth.signInWithOAuth({ provider: "discord", options: { redirectTo: SITE_URL } });
   });
-  document.getElementById("logout").addEventListener("click", async () => {
-    await sb.auth.signOut();
+  document.getElementById("logout").addEventListener("click", async () => { await sb.auth.signOut(); });
+  document.getElementById("denied-logout").addEventListener("click", async () => { await sb.auth.signOut(); });
+
+  if (DISCORD_GUILD_ID) loadDiscordOnline();
+
+  ["roster", "dienstplan", "strafzettel"].forEach(name => {
+    document.getElementById(name + "-search")?.addEventListener("input", () => filterTable(name));
   });
 }
 
-function showLogin() {
-  loginScreen.style.display = "flex";
-  app.style.display = "none";
+async function handleSession(session) {
+  if (RESTRICT_ACCESS) {
+    const discordId = session.user.user_metadata?.provider_id || session.user.user_metadata?.sub;
+    const { data } = await sb.from("authorized_officers").select("discord_id").eq("discord_id", discordId).maybeSingle();
+    if (!data) { showDenied(); return; }
+  }
+  showApp(session);
 }
+
+function showLogin() { loginScreen.style.display = "flex"; deniedScreen.style.display = "none"; app.style.display = "none"; }
+function showDenied() { loginScreen.style.display = "none"; deniedScreen.style.display = "flex"; app.style.display = "none"; }
 
 function showApp(session) {
   loginScreen.style.display = "none";
+  deniedScreen.style.display = "none";
   app.style.display = "block";
   const u = session.user.user_metadata || {};
   document.getElementById("user-name").textContent = u.full_name || u.name || session.user.email || "Beamter";
@@ -408,73 +405,97 @@ document.querySelectorAll(".nav-item").forEach(btn => {
   });
 });
 
-/* ---------- Data loading ---------- */
+/* ---------- Data ---------- */
+let cache = { officers: [], dienstplan: [], citations: [] };
+
 async function loadAll() {
   await Promise.all([loadOfficers(), loadDienstplan(), loadStrafzettel()]);
 }
 
 async function loadOfficers() {
-  const { data, error } = await sb.from("officers").select("*").order("created_at", { ascending: false });
+  const { data } = await sb.from("officers").select("*").order("created_at", { ascending: false });
+  cache.officers = data || [];
+  document.querySelector("#view-uebersicht .stat-num").textContent = cache.officers.length;
+  document.getElementById("stat-onduty").textContent = cache.officers.filter(o => o.status === "on").length;
+  renderOfficers(cache.officers);
+}
+function renderOfficers(rows) {
   const body = document.getElementById("roster-body");
-  document.getElementById("stat-officers").textContent = data ? data.length : 0;
-  document.getElementById("stat-onduty").textContent = data ? data.filter(o => o.status === "on").length : 0;
-  if (error || !data || data.length === 0) {
-    body.innerHTML = `<tr class="empty-row"><td colspan="5">Noch keine Beamten eingetragen</td></tr>`;
-    return;
-  }
-  body.innerHTML = data.map(o => `
+  if (!rows.length) { body.innerHTML = `<tr class="empty-row"><td colspan="5">Keine Einträge</td></tr>`; return; }
+  body.innerHTML = rows.map(o => `
     <tr>
       <td>${o.badge_number ?? "—"}</td>
       <td>${o.name}</td>
       <td>${o.rank ?? "—"}</td>
       <td><span class="badge-pill ${o.status === 'on' ? 'status-on' : 'status-off'}">${o.status === 'on' ? 'Im Dienst' : 'Außer Dienst'}</span></td>
-      <td><button class="btn-danger" onclick="deleteRow('officers', '${o.id}', loadOfficers)">Entfernen</button></td>
+      <td><button class="btn-danger" onclick="deleteRow('officers','${o.id}',loadOfficers)">Entfernen</button></td>
     </tr>`).join("");
 }
 
 async function loadDienstplan() {
-  const { data, error } = await sb.from("dienstplan").select("*").order("shift_date", { ascending: true });
+  const { data } = await sb.from("dienstplan").select("*").order("shift_date", { ascending: true });
+  cache.dienstplan = data || [];
+  renderDienstplan(cache.dienstplan);
+}
+function renderDienstplan(rows) {
   const body = document.getElementById("dienstplan-body");
-  if (error || !data || data.length === 0) {
-    body.innerHTML = `<tr class="empty-row"><td colspan="5">Noch keine Schichten eingetragen</td></tr>`;
-    return;
-  }
-  body.innerHTML = data.map(d => `
+  if (!rows.length) { body.innerHTML = `<tr class="empty-row"><td colspan="5">Keine Einträge</td></tr>`; return; }
+  body.innerHTML = rows.map(d => `
     <tr>
-      <td>${d.shift_date}</td>
-      <td>${d.officer_name}</td>
-      <td>${d.start_time}</td>
-      <td>${d.end_time}</td>
-      <td><button class="btn-danger" onclick="deleteRow('dienstplan', '${d.id}', loadDienstplan)">Entfernen</button></td>
+      <td>${d.shift_date}</td><td>${d.officer_name}</td><td>${d.start_time ?? "—"}</td><td>${d.end_time ?? "—"}</td>
+      <td><button class="btn-danger" onclick="deleteRow('dienstplan','${d.id}',loadDienstplan)">Entfernen</button></td>
     </tr>`).join("");
 }
 
 async function loadStrafzettel() {
-  const { data, error } = await sb.from("citations").select("*").order("created_at", { ascending: false });
-  const body = document.getElementById("strafzettel-body");
+  const { data } = await sb.from("citations").select("*").order("created_at", { ascending: false });
+  cache.citations = data || [];
+  document.getElementById("stat-citations").textContent = cache.citations.length;
+  renderStrafzettel(cache.citations);
+  renderChart(cache.citations);
   const recent = document.getElementById("recent-citations");
-  document.getElementById("stat-citations").textContent = data ? data.length : 0;
-  if (error || !data || data.length === 0) {
-    body.innerHTML = `<tr class="empty-row"><td colspan="6">Noch keine Strafzettel ausgestellt</td></tr>`;
-    recent.innerHTML = `<tr class="empty-row"><td colspan="4">Noch keine Einträge</td></tr>`;
-    return;
-  }
-  body.innerHTML = data.map(c => `
+  recent.innerHTML = cache.citations.length ? cache.citations.slice(0, 5).map(c => `
+    <tr><td>${new Date(c.created_at).toLocaleDateString("de-DE")}</td><td>${c.suspect_name}</td><td>${c.reason}</td><td>$${c.amount}</td></tr>
+  `).join("") : `<tr class="empty-row"><td colspan="4">Noch keine Einträge</td></tr>`;
+}
+function renderStrafzettel(rows) {
+  const body = document.getElementById("strafzettel-body");
+  if (!rows.length) { body.innerHTML = `<tr class="empty-row"><td colspan="6">Keine Einträge</td></tr>`; return; }
+  body.innerHTML = rows.map(c => `
     <tr>
-      <td>${new Date(c.created_at).toLocaleDateString("de-DE")}</td>
-      <td>${c.suspect_name}</td>
-      <td>${c.reason}</td>
-      <td>$${c.amount}</td>
-      <td>${c.officer_name}</td>
-      <td><button class="btn-danger" onclick="deleteRow('citations', '${c.id}', loadStrafzettel)">Entfernen</button></td>
+      <td>${new Date(c.created_at).toLocaleDateString("de-DE")}</td><td>${c.suspect_name}</td><td>${c.reason}</td>
+      <td>$${c.amount}</td><td>${c.officer_name}</td>
+      <td><button class="btn-danger" onclick="deleteRow('citations','${c.id}',loadStrafzettel)">Entfernen</button></td>
     </tr>`).join("");
-  recent.innerHTML = data.slice(0, 5).map(c => `
-    <tr>
-      <td>${new Date(c.created_at).toLocaleDateString("de-DE")}</td>
-      <td>${c.suspect_name}</td>
-      <td>${c.reason}</td>
-      <td>$${c.amount}</td>
-    </tr>`).join("");
+}
+
+function renderChart(rows) {
+  const el = document.getElementById("citations-chart");
+  const months = {};
+  rows.forEach(c => {
+    const d = new Date(c.created_at);
+    const key = d.toLocaleDateString("de-DE", { month: "short", year: "2-digit" });
+    months[key] = (months[key] || 0) + 1;
+  });
+  const entries = Object.entries(months).slice(-6);
+  if (!entries.length) { el.innerHTML = `<p style="color:var(--paper-dim);font-size:12px;">Noch keine Daten</p>`; return; }
+  const max = Math.max(...entries.map(e => e[1]), 1);
+  el.innerHTML = entries.map(([label, count]) => `
+    <div class="chart-bar">
+      <div class="val">${count}</div>
+      <div class="bar" style="height:${Math.max((count / max) * 100, 4)}%"></div>
+      <div class="lbl">${label}</div>
+    </div>`).join("");
+}
+
+/* ---------- Suche/Filter ---------- */
+function filterTable(name) {
+  const q = document.getElementById(name + "-search").value.toLowerCase();
+  const rows = cache[name === "roster" ? "officers" : name].filter(row =>
+    JSON.stringify(row).toLowerCase().includes(q));
+  if (name === "roster") renderOfficers(rows);
+  if (name === "dienstplan") renderDienstplan(rows);
+  if (name === "strafzettel") renderStrafzettel(rows);
 }
 
 async function deleteRow(table, id, reload) {
@@ -482,7 +503,23 @@ async function deleteRow(table, id, reload) {
   reload();
 }
 
-/* ---------- Add handlers ---------- */
+/* ---------- Discord "Online jetzt" Widget (öffentlich, kein Bot nötig) ---------- */
+async function loadDiscordOnline() {
+  try {
+    const res = await fetch(`https://discord.com/api/guilds/${DISCORD_GUILD_ID}/widget.json`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const panel = document.getElementById("discord-online-panel");
+    const list = document.getElementById("online-list");
+    if (!data.members || !data.members.length) return;
+    panel.style.display = "block";
+    list.innerHTML = data.members.slice(0, 30).map(m => `
+      <div class="online-chip"><img src="${m.avatar_url}" alt=""><span>${m.username}</span><span class="dot"></span></div>
+    `).join("");
+  } catch (e) { /* Widget evtl. deaktiviert - einfach ignorieren */ }
+}
+
+/* ---------- Formulare ---------- */
 document.getElementById("add-officer").addEventListener("click", async () => {
   const name = document.getElementById("of-name").value.trim();
   if (!name) return;
@@ -503,8 +540,7 @@ document.getElementById("add-shift").addEventListener("click", async () => {
   const date = document.getElementById("dp-date").value;
   if (!name || !date) return;
   await sb.from("dienstplan").insert({
-    officer_name: name,
-    shift_date: date,
+    officer_name: name, shift_date: date,
     start_time: document.getElementById("dp-start").value,
     end_time: document.getElementById("dp-end").value
   });
@@ -517,8 +553,7 @@ document.getElementById("add-citation").addEventListener("click", async () => {
   const reason = document.getElementById("cz-grund").value.trim();
   if (!suspect || !reason) return;
   await sb.from("citations").insert({
-    suspect_name: suspect,
-    reason,
+    suspect_name: suspect, reason,
     amount: Number(document.getElementById("cz-betrag").value) || 0,
     officer_name: document.getElementById("cz-officer").value.trim() || "Unbekannt"
   });
