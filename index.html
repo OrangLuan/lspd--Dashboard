@@ -78,7 +78,8 @@
   .toast.err{border-left-color:var(--red);}
   @keyframes toast-in{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
   @keyframes toast-out{to{opacity:0;transform:translateX(20px);}}
-  @media (max-width:720px){ #toast-wrap{left:14px;right:14px;bottom:14px;} .toast{max-width:none;} }
+  #build-tag{position:fixed;bottom:8px;left:10px;font-size:10px;color:var(--paper-dim);opacity:0.5;letter-spacing:0.05em;z-index:1000;}
+  @media (max-width:720px){ #toast-wrap{left:14px;right:14px;bottom:14px;} .toast{max-width:none;} #build-tag{bottom:4px;font-size:9px;} }
   #denied-screen{
     display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;
     gap:16px;padding:24px;text-align:center;
@@ -348,6 +349,7 @@
 </div>
 
 <div id="toast-wrap"></div>
+<div id="build-tag">Build: 05.09.2026 · v5</div>
 
 <script>
 /* ======================================================================
